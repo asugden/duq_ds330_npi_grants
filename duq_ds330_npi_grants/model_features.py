@@ -8,6 +8,7 @@ import jarowinkler
 class FeatureExtractor():
     def __init__(self):
         # self.model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+        pass
 
     def features(self, 
                  grantees: pd.DataFrame, 
