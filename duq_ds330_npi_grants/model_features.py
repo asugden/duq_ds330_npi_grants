@@ -14,7 +14,7 @@ class FeatureExtractor():
                  grantees: pd.DataFrame, 
                  providers: pd.DataFrame) -> pd.DataFrame:
         """Compute distance features from a pair of dataframes"""
-        cols_to_lowercase = ['forename', 'last_name', 'city', 'state']
+        cols_to_lowercase = ['forename', 'city', 'state']
         for col in cols_to_lowercase:
             grantees[col] = grantees[col].str.lower()
 
@@ -22,10 +22,6 @@ class FeatureExtractor():
         comb = pd.concat([grantees.add_suffix('_g'), providers.add_suffix('_p')], axis=1)
 
         # If it's testing data
-        comb = grantees.add_suffix('_g').merge(providers.add_suffix('_p'), 
-                              how='outer',
-                              left_on='last_name_g',
-                              right_on='last_name_p')
         
         comb['jw_dist_forename'] = comb.apply(lambda row: jw_dist(row['forename_g'],
                                                                   row['forename_p']), 
@@ -47,6 +43,15 @@ class FeatureExtractor():
         comb['set_dist_state'] = comb.apply(lambda row: set_dist(row['state_g'],
                                                                   row['state_p']), 
                                                                   axis=1)  # Force row-by-row
+        
+        return comb[['jw_dist_forename',
+                     'set_dist_forename',
+                     'jw_dist_city',
+                     'set_dist_city',
+                     'jw_dist_state',
+                     'set_dist_state']]
+        
+
 
 
 
@@ -60,7 +65,7 @@ def jw_dist(v1: str, v2: str) -> float:
         return np.nan
 
 
-def set_dist(v1: str | np.nan, v2: str | np.nan) -> float:
+def set_dist(v1: str, v2: str) -> float:
     if isinstance(v1, str) and isinstance(v2, str):
         v1 = set(v1.split(' '))
         v2 = set(v2.split(' '))
